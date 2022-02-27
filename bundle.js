@@ -15,17 +15,17 @@ new _controller_lottoController__WEBPACK_IMPORTED_MODULE_0__["default"]();
 
 /***/ }),
 
-/***/ "./src/js/controller/constants.js":
-/*!****************************************!*\
-  !*** ./src/js/controller/constants.js ***!
-  \****************************************/
+/***/ "./src/js/constants/constants.js":
+/*!***************************************!*\
+  !*** ./src/js/constants/constants.js ***!
+  \***************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "ERROR_MESSAGE": () => (/* binding */ ERROR_MESSAGE),
 /* harmony export */   "MONEY_INPUT": () => (/* binding */ MONEY_INPUT),
-/* harmony export */   "LOTTO_PRICE": () => (/* binding */ LOTTO_PRICE)
+/* harmony export */   "LOTTO": () => (/* binding */ LOTTO)
 /* harmony export */ });
 var ERROR_MESSAGE = {
   INVALID_MONEY_INPUT: '금액은 1000의 배수이고 1000원 이상 10000원 이하여야 합니다.'
@@ -34,7 +34,11 @@ var MONEY_INPUT = {
   MIN_PRICE: 1000,
   MAX_PRICE: 10000
 };
-var LOTTO_PRICE = 1000;
+var LOTTO = {
+  TICKET_PRICE: 1000,
+  DIGIT: 6,
+  MAX_NUMBER: 45
+};
 
 /***/ }),
 
@@ -49,10 +53,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ LottoController)
 /* harmony export */ });
 /* harmony import */ var _utils_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/dom */ "./src/js/utils/dom.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./constants */ "./src/js/controller/constants.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../constants/constants */ "./src/js/constants/constants.js");
 /* harmony import */ var _validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./validator */ "./src/js/controller/validator.js");
 /* harmony import */ var _model_Lotto__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../model/Lotto */ "./src/js/model/Lotto.js");
-/* harmony import */ var _view_lottoView__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../view/lottoView */ "./src/js/view/lottoView.js");
+/* harmony import */ var _view_LottoView__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../view/LottoView */ "./src/js/view/LottoView.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -73,33 +77,33 @@ var LottoController = /*#__PURE__*/function () {
 
     _classCallCheck(this, LottoController);
 
-    _defineProperty(this, "purchaseHandler", function (e) {
+    _defineProperty(this, "handlePurchase", function (e) {
       e.preventDefault();
       var moneyInput = Number((0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.money-input').value);
 
       if (!(0,_validator__WEBPACK_IMPORTED_MODULE_2__.isValidMoneyInput)(moneyInput)) {
-        alert(_constants__WEBPACK_IMPORTED_MODULE_1__.ERROR_MESSAGE.INVALID_MONEY_INPUT);
+        alert(_constants_constants__WEBPACK_IMPORTED_MODULE_1__.ERROR_MESSAGE.INVALID_MONEY_INPUT);
         return;
       }
 
-      _this.getLottos(moneyInput);
+      _this.issueLottoTickets(moneyInput);
 
-      (0,_view_lottoView__WEBPACK_IMPORTED_MODULE_4__.showResult)(_this.lottos);
+      _this.lottoView.showResult(_this.lottoTickets);
     });
 
-    this.lottos = [];
-    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.purchase-form').addEventListener('submit', this.purchaseHandler);
-    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.cm-toggle').addEventListener('click', _view_lottoView__WEBPACK_IMPORTED_MODULE_4__.toggleNumberDetail);
+    this.lottoTickets = [];
+    this.lottoView = new _view_LottoView__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.purchase-form').addEventListener('submit', this.handlePurchase);
   }
 
   _createClass(LottoController, [{
-    key: "getLottos",
-    value: function getLottos(moneyInput) {
-      var numberOfLottos = parseInt(moneyInput / _constants__WEBPACK_IMPORTED_MODULE_1__.LOTTO_PRICE);
+    key: "issueLottoTickets",
+    value: function issueLottoTickets(moneyInput) {
+      var purchasedLottoTicketsLength = parseInt(moneyInput / _constants_constants__WEBPACK_IMPORTED_MODULE_1__.LOTTO.TICKET_PRICE);
 
-      for (var i = 0; i < numberOfLottos; i += 1) {
-        var lotto = new _model_Lotto__WEBPACK_IMPORTED_MODULE_3__["default"]();
-        this.lottos.push(lotto.lottoNumbers);
+      for (var i = 0; i < purchasedLottoTicketsLength; i += 1) {
+        var lottoTicket = new _model_Lotto__WEBPACK_IMPORTED_MODULE_3__["default"]();
+        this.lottoTickets.push(lottoTicket.lottoNumbers);
       }
     }
   }]);
@@ -121,27 +125,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "isValidMoneyInput": () => (/* binding */ isValidMoneyInput)
 /* harmony export */ });
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants */ "./src/js/controller/constants.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../constants/constants */ "./src/js/constants/constants.js");
 
 
 var isThousandMultiple = function isThousandMultiple(money) {
-  return money % _constants__WEBPACK_IMPORTED_MODULE_0__.MONEY_INPUT.MIN_PRICE === 0;
-};
-
-var isOverThouand = function isOverThouand(money) {
-  return money >= _constants__WEBPACK_IMPORTED_MODULE_0__.MONEY_INPUT.MIN_PRICE;
-};
-
-var isUnderMillion = function isUnderMillion(money) {
-  return money <= _constants__WEBPACK_IMPORTED_MODULE_0__.MONEY_INPUT.MAX_PRICE;
+  return money % _constants_constants__WEBPACK_IMPORTED_MODULE_0__.MONEY_INPUT.MIN_PRICE === 0;
 };
 
 var isValidMoneyRange = function isValidMoneyRange(money) {
-  return isOverThouand(money) && isUnderMillion(money);
+  return money >= _constants_constants__WEBPACK_IMPORTED_MODULE_0__.MONEY_INPUT.MIN_PRICE && money <= _constants_constants__WEBPACK_IMPORTED_MODULE_0__.MONEY_INPUT.MAX_PRICE;
 };
 
 var isValidMoneyInput = function isValidMoneyInput(money) {
-  return isThousandMultiple(money) && isOverThouand(money) && isUnderMillion(money) && isValidMoneyRange(money);
+  return isThousandMultiple(money) && isValidMoneyRange(money);
 };
 
 /***/ }),
@@ -156,7 +152,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Lotto)
 /* harmony export */ });
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants */ "./src/js/model/constants.js");
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../constants/constants */ "./src/js/constants/constants.js");
 /* harmony import */ var _utils_number__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/number */ "./src/js/utils/number.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -178,12 +174,14 @@ var Lotto = /*#__PURE__*/function () {
   _createClass(Lotto, [{
     key: "generateLottoNumbers",
     value: function generateLottoNumbers() {
-      while (this.lottoNumbers.length < _constants__WEBPACK_IMPORTED_MODULE_0__.LOTTO_DIGIT) {
-        var randomNumber = (0,_utils_number__WEBPACK_IMPORTED_MODULE_1__.generateRandomNumber)();
+      var candidate = Array(45).fill().map(function (element, index) {
+        return index + 1;
+      });
 
-        if (!this.lottoNumbers.includes(randomNumber)) {
-          this.lottoNumbers.push(randomNumber);
-        }
+      while (this.lottoNumbers.length < 6) {
+        (0,_utils_number__WEBPACK_IMPORTED_MODULE_1__.shuffleNumber)(candidate);
+        var pickedNumber = candidate.splice(0, 1)[0];
+        this.lottoNumbers.push(pickedNumber);
       }
     }
   }]);
@@ -192,20 +190,6 @@ var Lotto = /*#__PURE__*/function () {
 }();
 
 
-
-/***/ }),
-
-/***/ "./src/js/model/constants.js":
-/*!***********************************!*\
-  !*** ./src/js/model/constants.js ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "LOTTO_DIGIT": () => (/* binding */ LOTTO_DIGIT)
-/* harmony export */ });
-var LOTTO_DIGIT = 6;
 
 /***/ }),
 
@@ -239,66 +223,97 @@ var $$ = function $$(selector) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "generateRandomNumber": () => (/* binding */ generateRandomNumber)
+/* harmony export */   "generateRandomNumber": () => (/* binding */ generateRandomNumber),
+/* harmony export */   "shuffleNumber": () => (/* binding */ shuffleNumber)
 /* harmony export */ });
-var LOTTO_MAX_NUMBER = 45;
+/* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../constants/constants */ "./src/js/constants/constants.js");
+
 var generateRandomNumber = function generateRandomNumber() {
-  return Math.floor(Math.random() * LOTTO_MAX_NUMBER) + 1;
+  return Math.floor(Math.random() * _constants_constants__WEBPACK_IMPORTED_MODULE_0__.LOTTO.MAX_NUMBER) + 1;
+};
+var shuffleNumber = function shuffleNumber(array) {
+  return array.sort(function () {
+    return Math.random() - 0.5;
+  });
 };
 
 /***/ }),
 
-/***/ "./src/js/view/lottoView.js":
+/***/ "./src/js/view/LottoView.js":
 /*!**********************************!*\
-  !*** ./src/js/view/lottoView.js ***!
+  !*** ./src/js/view/LottoView.js ***!
   \**********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "toggleNumberDetail": () => (/* binding */ toggleNumberDetail),
-/* harmony export */   "showResult": () => (/* binding */ showResult)
+/* harmony export */   "default": () => (/* binding */ LottoView)
 /* harmony export */ });
 /* harmony import */ var _utils_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/dom */ "./src/js/utils/dom.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 
-var showNumberOfLottos = function showNumberOfLottos(length) {
-  var template = "<span>\uCD1D ".concat(length, "\uAC1C\uB97C \uAD6C\uB9E4\uD558\uC600\uC2B5\uB2C8\uB2E4.</span>");
-  (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.purchase-status-container').insertAdjacentHTML('afterbegin', template);
-};
 
-var showResultElements = function showResultElements() {
-  (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$$)('.result').forEach(function (element) {
-    return element.classList.remove('d-none');
-  });
-};
+var LottoView = /*#__PURE__*/function () {
+  function LottoView() {
+    _classCallCheck(this, LottoView);
 
-var showLottoImage = function showLottoImage(lottos) {
-  var template = lottos.map(function (lotto) {
-    return "<div class=\"lotto-img\">\n      \uD83C\uDF9F\uFE0F<span class=\"lotto-number-detail d-none\">".concat(lotto.join(', '), "</span>\n    </div>");
-  }).join('');
-  (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.lotto-grid').insertAdjacentHTML('beforeend', template);
-};
+    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.cm-toggle').addEventListener('click', this.toggleNumberDetail);
+  }
 
-var toggleNumberDetail = function toggleNumberDetail() {
-  var lottoGrid = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.lotto-grid');
-  lottoGrid.classList.toggle('lotto-grid-detail');
-  (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$$)('.lotto-number-detail').forEach(function (element) {
-    element.classList.toggle('d-none');
-  });
-};
+  _createClass(LottoView, [{
+    key: "deactivateForm",
+    value: function deactivateForm(enable) {
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.money-input').setAttribute('disabled', enable);
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.purchase-button').setAttribute('disabled', enable);
+    }
+  }, {
+    key: "showResultElements",
+    value: function showResultElements() {
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$$)('.result').forEach(function (element) {
+        return element.classList.remove('d-none');
+      });
+    }
+  }, {
+    key: "showLottoTicketsLength",
+    value: function showLottoTicketsLength(lottoTicketsLength) {
+      var template = "<span>\uCD1D ".concat(lottoTicketsLength, "\uAC1C\uB97C \uAD6C\uB9E4\uD558\uC600\uC2B5\uB2C8\uB2E4.</span>");
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.purchase-status-container').insertAdjacentHTML('afterbegin', template);
+    }
+  }, {
+    key: "showLottoImage",
+    value: function showLottoImage(lottoTickets) {
+      var template = lottoTickets.map(function (lotto) {
+        return "<div class=\"lotto-img\">\n        \uD83C\uDF9F\uFE0F<span class=\"lotto-number-detail d-none\">".concat(lotto.join(', '), "</span>\n      </div>");
+      }).join('');
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.lotto-grid').insertAdjacentHTML('beforeend', template);
+    }
+  }, {
+    key: "showResult",
+    value: function showResult(lottoTickets) {
+      this.deactivateForm(true);
+      this.showResultElements();
+      this.showLottoTicketsLength(lottoTickets.length);
+      this.showLottoImage(lottoTickets);
+    }
+  }, {
+    key: "toggleNumberDetail",
+    value: function toggleNumberDetail() {
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.lotto-grid').classList.toggle('lotto-grid-detail');
+      (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$$)('.lotto-number-detail').forEach(function (element) {
+        element.classList.toggle('d-none');
+      });
+    }
+  }]);
 
-var deactivateForm = function deactivateForm() {
-  (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.money-input').setAttribute('disabled', true);
-  (0,_utils_dom__WEBPACK_IMPORTED_MODULE_0__.$)('.purchase-button').setAttribute('disabled', true);
-};
+  return LottoView;
+}();
 
-var showResult = function showResult(lottos) {
-  deactivateForm();
-  showResultElements();
-  showNumberOfLottos(lottos.length);
-  showLottoImage(lottos);
-};
+
 
 /***/ }),
 
